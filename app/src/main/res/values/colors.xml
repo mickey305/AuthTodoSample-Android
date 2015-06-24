@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="myPrimaryColor">#01a9e7</color>
+    <color name="myPrimaryDarkColor">#1898c9</color>
+    <color name="myAccentColor">#ff1bcc9e</color>
+    <color name="myNegativeColor">#f65e5e</color>
+    <color name="myDrawerBackground">#fff</color>
+    <color name="myWindowBackground">#fff</color>
+    <color name="myTextPrimaryColor">#212121</color>
+    <color name="myNavigationColor">#000</color>
+
+    <color name="myTextColor">#212121</color>
+    <color name="mySecondaryTextColor">#727272</color>
+    <color name="myDisabledTextColor">#b8b8b8</color>
+    <color name="myHintTextColor">#b8b8b8</color>
+    <color name="myDividerColor">#dadada</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+
+    <drawable name="pressedGray">#0a000000</drawable>
+    <drawable name="selectedGray">#14000000</drawable>
+    <drawable name="clear">#00000000</drawable>
+</resources>

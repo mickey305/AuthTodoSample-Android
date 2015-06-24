@@ -1,0 +1,55 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center" >
+
+    <LinearLayout
+        android:id="@+id/layout_dialog_frame"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/textViewTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_margin="@dimen/dp_24"
+            android:textSize="@dimen/dp_24"
+            android:text="this is sample text message." />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageButton
+                android:layout_width="@dimen/dp_56"
+                android:layout_height="@dimen/dp_56"
+                android:tint="@android:color/white"
+                android:src="@drawable/ic_cancel"
+                android:background="@drawable/oval_negative"
+                android:layout_margin="@dimen/dp_24"
+                android:elevation="@dimen/floating_button_elevation"
+                android:stateListAnimator="@anim/oval_elevation"
+                android:id="@+id/buttonCancel" />
+
+            <ImageButton
+                android:layout_width="@dimen/dp_56"
+                android:layout_height="@dimen/dp_56"
+                android:tint="@android:color/white"
+                android:src="@drawable/ic_done"
+                android:background="@drawable/oval_positive"
+                android:layout_margin="@dimen/dp_24"
+                android:elevation="@dimen/floating_button_elevation"
+                android:stateListAnimator="@anim/oval_elevation"
+                android:id="@+id/buttonVerify" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

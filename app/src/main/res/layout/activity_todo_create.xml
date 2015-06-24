@@ -1,0 +1,48 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_56"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <jp.mickey305.authtodosample.KeyEventEditText
+            android:id="@+id/todo_create_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dp_48"
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_marginRight="@dimen/dp_16"
+            android:layout_marginLeft="@dimen/dp_16"
+            android:textAppearance="@style/MyTextAppearanceBody"
+            android:textColor="@color/myTextColor"
+            android:singleLine="true"
+            android:gravity="left"
+            android:hint="@string/title"/>
+
+        <jp.mickey305.authtodosample.KeyEventEditText
+            android:id="@+id/todo_body_et"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:layout_marginLeft="@dimen/dp_16"
+            android:layout_marginRight="@dimen/dp_16"
+            android:textColor="@color/myTextColor"
+            android:singleLine="false"
+            android:gravity="top|left"
+            android:hint="@string/body"/>
+
+    </LinearLayout>
+
+</LinearLayout>

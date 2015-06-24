@@ -1,0 +1,8 @@
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
+
+/app/src/main/res/values/strings.xml
+.DS_Store
