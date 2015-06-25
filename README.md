@@ -11,6 +11,9 @@
 * Nexus 7 (Android 5.1)
 * SDKやビルド環境についてはGradleファイル参照
 
+#### スクリーンショット
+!["screen shot"](screen_shot.png "screen shot")
+
 #### 追加
 次の`<string name="api_key">XXXXXXXXX</string>`の所にdocomo Developerで取得したAPIキーを入力して、`/app/src/main/res/values/strings.xml`に保存する。APIキー取得にはdocomo Developerへの登録（無料ユーザ）が必要
 
