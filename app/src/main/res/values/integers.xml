@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <integer name="camera_width">480</integer>
+    <integer name="camera_height">640</integer>
+
     <integer name="threshold">85</integer>
     <integer name="face_id_max">100</integer>
 </resources>

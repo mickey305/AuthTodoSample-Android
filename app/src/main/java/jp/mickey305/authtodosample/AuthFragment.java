@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +68,13 @@ public class AuthFragment extends Fragment implements
         myCameraView.setCallback(this);
 
         viewGroup.addView(myCameraView);
+        RelativeLayout overLayer = new RelativeLayout(getActivity());
+        overLayer.setBackground(getResources().getDrawable(R.drawable.layout_face_camera));
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.width = getResources().getInteger(R.integer.camera_width);
+        params.height = getResources().getInteger(R.integer.camera_height);
+        overLayer.setLayoutParams(params);
+        viewGroup.addView(overLayer);
         viewGroup.setPadding(0, 0, 0, (int) getResources().getDimension(R.dimen.dp_24));
 
         authSurfaceFrame.setElevation(getResources().getDimension(R.dimen.card_elevation));

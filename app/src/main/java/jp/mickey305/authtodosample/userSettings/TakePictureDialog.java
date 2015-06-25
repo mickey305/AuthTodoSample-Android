@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import jp.mickey305.authtodosample.R;
@@ -66,6 +67,13 @@ public class TakePictureDialog extends DialogFragment implements CameraView.Call
         myCameraView = new CameraView(getActivity(), CameraView.CAMERA_MODE.IN);
         myCameraView.setCallback(this);
         viewGroup.addView(myCameraView);
+        RelativeLayout overLayer = new RelativeLayout(getActivity());
+        overLayer.setBackground(getResources().getDrawable(R.drawable.layout_face_camera));
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.width = getResources().getInteger(R.integer.camera_width);
+        params.height = getResources().getInteger(R.integer.camera_height);
+        overLayer.setLayoutParams(params);
+        viewGroup.addView(overLayer);
         viewGroup.setElevation(getResources().getDimension(R.dimen.card_elevation));
 
         return dialog;

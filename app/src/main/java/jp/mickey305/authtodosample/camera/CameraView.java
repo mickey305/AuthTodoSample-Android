@@ -9,6 +9,8 @@ import android.view.SurfaceView;
 
 import java.util.List;
 
+import jp.mickey305.authtodosample.R;
+
 public class CameraView extends SurfaceView implements
         SurfaceHolder.Callback, PictureListener.PictureDataCallback {
     private static final String TAG = "CameraView";
@@ -67,15 +69,15 @@ public class CameraView extends SurfaceView implements
         final int height_tmp = height;
 
         // カメラプレビューレイアウトの設定
-        int previewWidth = 640;
-        int previewHeight = 480;
+        int previewWidth = getResources().getInteger(R.integer.camera_width);
+        int previewHeight = getResources().getInteger(R.integer.camera_height);
         android.view.ViewGroup.LayoutParams layoutParams = this.getLayoutParams();
         if (portrait) {
-            layoutParams.width = previewHeight;
-            layoutParams.height = previewWidth;
-        } else {
             layoutParams.width = previewWidth;
             layoutParams.height = previewHeight;
+        } else {
+            layoutParams.width = previewHeight;
+            layoutParams.height = previewWidth;
         }
         this.setLayoutParams(layoutParams);
 

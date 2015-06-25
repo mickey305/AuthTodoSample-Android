@@ -31,7 +31,7 @@
                 android:textColor="@color/white"
                 android:text="This is title zone"/>
 
-            <RelativeLayout
+            <FrameLayout
                 android:id="@+id/layout_mycamera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -40,8 +40,8 @@
 
         <ImageButton
             android:layout_gravity="center"
-            android:layout_width="@dimen/dp_64"
-            android:layout_height="@dimen/dp_64"
+            android:layout_width="@dimen/dp_72"
+            android:layout_height="@dimen/dp_72"
             android:tint="@color/myPrimaryColor"
             android:src="@drawable/ic_camera"
             android:background="@drawable/oval"
