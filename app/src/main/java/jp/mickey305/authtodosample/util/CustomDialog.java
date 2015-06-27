@@ -37,7 +37,7 @@ public class CustomDialog extends DialogFragment {
                 new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        dialog.setContentView(R.layout.access_dialog);
+        dialog.setContentView(R.layout.custom_dialog);
         dialog.findViewById(R.id.buttonCancel).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
