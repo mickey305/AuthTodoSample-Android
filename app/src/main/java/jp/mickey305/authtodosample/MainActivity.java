@@ -59,8 +59,7 @@ public class MainActivity extends ActionBarActivity implements
             break;
         case 4: break;
         case 5:
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            startActivity(SettingsActivity.class);
         default: break;
         }
     }
@@ -112,6 +111,11 @@ public class MainActivity extends ActionBarActivity implements
 
     private void openUri(String uri) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(intent);
+    }
+
+    private void startActivity(Class<?> cls) {
+        Intent intent = new Intent(this, cls);
         startActivity(intent);
     }
 

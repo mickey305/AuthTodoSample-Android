@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,14 +13,17 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 
-public class NavigationDrawerAdapter extends BaseAdapter implements NavigationDrawerItemTypeCode{
+public class NavigationDrawerAdapter extends ArrayAdapter<NavigationDrawerItem>
+        implements NavigationDrawerItemTypeCode
+{
 
     private LayoutInflater mInflater;
-    private List<NavigationDrawerItem> mNavigationDrawerItemList;
+    private List<NavigationDrawerItem> navigationDrawerItemList;
 
     public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> list) {
+        super(context, -1, list);
         mInflater = LayoutInflater.from(context);
-        mNavigationDrawerItemList = list;
+        navigationDrawerItemList = list;
     }
 
     public boolean isCheckableItem(int position) {
@@ -28,17 +32,17 @@ public class NavigationDrawerAdapter extends BaseAdapter implements NavigationDr
 
     @Override
     public int getCount() {
-        return mNavigationDrawerItemList.size();
+        return navigationDrawerItemList.size();
     }
 
     @Override
     public long getItemId(int position) {
-        return mNavigationDrawerItemList.get(position).getType();
+        return navigationDrawerItemList.get(position).getType();
     }
 
     @Override
     public NavigationDrawerItem getItem(int position) {
-        return mNavigationDrawerItemList.get(position);
+        return navigationDrawerItemList.get(position);
     }
 
     @Override

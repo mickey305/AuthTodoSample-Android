@@ -27,7 +27,7 @@ import java.util.HashMap;
  */
 public class AuthDocomoAPIObject implements DocomoAPIURLValues{
     public static final String TAG = "AuthDocomoAPIObject";
-    private static final String uri = URI;
+    private static final String uri = URI_FACIAL_RECOGNITION;
     private Context context;
     private REQUEST_MODE requestMode;
     private String apiKey;
@@ -370,16 +370,16 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
                         if(getFaceId() == faceIdVerify) { break; }
                         ++i;
                     }
+                    if(judgeScore(score, getContext())) {
+                        // Verify Succeeded
+                        if(authCallback != null) authCallback.onAuthFacialRecognitionSucceeded();
+                    } else {
+                        // Verify Rejected
+                        if(authCallback != null) authCallback.onAuthFacialRecognitionRejected();
+                    }
                 } catch (JSONException e) {
                     //e.printStackTrace();
                     if(authCallback != null) authCallback.onAuthExceptionOccurred(e);
-                }
-                if(judgeScore(score, getContext())) {
-                    // Verify Succeeded
-                    if(authCallback != null) authCallback.onAuthFacialRecognitionSucceeded();
-                } else {
-                    // Verify Rejected
-                    if(authCallback != null) authCallback.onAuthFacialRecognitionRejected();
                 }
                 if(onConnectionStatusListener != null) {
                     onConnectionStatusListener.onAPIConnectionStop();
