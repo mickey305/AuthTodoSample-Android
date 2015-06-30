@@ -277,11 +277,11 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
         String query = "";
         int i = 0;
         for(HashMap.Entry entry : queryArray.entrySet()){
-            if( i == 0 && isEmptyQuery() ){
+            if( i++ == 0 && isEmptyQuery() ){
                 query += "?" + entry.getKey().toString() + "=" + entry.getValue().toString();
+                continue;
             }
             query += "&" + entry.getKey().toString() + "=" + entry.getValue().toString();
-            ++i;
         }
         if(!isEmptyQuery()) setQuery(getQuery() + query);
         else setQuery(query);

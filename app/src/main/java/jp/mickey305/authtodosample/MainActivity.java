@@ -50,17 +50,21 @@ public class MainActivity extends ActionBarActivity implements
             Fragment fg =(app.isStatusLogin())? createTodoListFragment(): createAuthFragment();
             replaceFragment(fg);
             break;
-        case 1: break;
+        case 1:
+            break;
         case 2:
             openUri("https://github.com/mickey305/AuthTodoSample-Android/");
             break;
         case 3:
             openUri("https://github.com/mickey305/AuthTodoSample-Android/issues");
             break;
-        case 4: break;
+        case 4:
+            break;
         case 5:
             startActivity(SettingsActivity.class);
-        default: break;
+            break;
+        default:
+            break;
         }
     }
 
