@@ -1,4 +1,4 @@
-package jp.mickey305.authtodosample.model;
+package jp.mickey305.authtodosample;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
-import jp.mickey305.authtodosample.R;
+import jp.mickey305.authtodosample.model.Todo;
 
 public class TodoListAdapter extends RealmBaseAdapter<Todo> implements ListAdapter {
 

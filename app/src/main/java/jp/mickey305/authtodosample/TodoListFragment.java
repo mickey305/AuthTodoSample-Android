@@ -20,7 +20,6 @@ import butterknife.OnClick;
 import butterknife.OnItemClick;
 import butterknife.OnItemLongClick;
 import jp.mickey305.authtodosample.model.Todo;
-import jp.mickey305.authtodosample.model.TodoListAdapter;
 import jp.mickey305.authtodosample.model.TodoManager;
 import jp.mickey305.authtodosample.util.CustomDialog;
 import jp.mickey305.authtodosample.util.CustomQuickLookDialog;
