@@ -68,6 +68,15 @@
 #### APIガイドライン（必読）
 * [画像認識API関連ガイドライン][facial_verify_guideline_link]
 
+#### 参考
+* http://ameblo.jp/fumin65/entry-10818402984.html
+* http://qiita.com/JunSuzukiJapan/items/b5484ad8ad9f2de757be
+* https://github.com/dai1741/PortraitCameraSample/blob/master/PortraitCameraSample/src/jp/dai1741/android/portcamerasample/CameraPreviewView.java
+* http://qiita.com/usugita_san/items/c9960eaa37aa4997c8c9
+* http://dorodoro.info/tip/bitmapをbytearrayに変換/
+* http://teru2-bo2.blogspot.jp/2012/05/blog-post_30.html
+* http://www.mysamplecode.com/2012/07/android-listview-checkbox-example.html
+
 
 [facial_verify_reference_link]: https://dev.smt.docomo.ne.jp/?p=common_page&p_name=pux_faceauthentication
 [facial_verify_guideline_link]: https://dev.smt.docomo.ne.jp/?p=docs.api.page&api_name=image_recognition&p_name=guideline#tag01
