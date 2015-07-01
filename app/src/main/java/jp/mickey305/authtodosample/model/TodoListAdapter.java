@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ public class TodoListAdapter extends RealmBaseAdapter<Todo> implements ListAdapt
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
+    private Callback callback;
 
     public TodoListAdapter(Context context, RealmResults<Todo> realmResults,
                            boolean automaticUpdate) {
@@ -25,8 +27,12 @@ public class TodoListAdapter extends RealmBaseAdapter<Todo> implements ListAdapt
         mLayoutInflater = LayoutInflater.from(context);
     }
 
+    public interface Callback {
+        void onClickCheckBox(int position);
+    }
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -38,19 +44,30 @@ public class TodoListAdapter extends RealmBaseAdapter<Todo> implements ListAdapt
         }
 
         Todo todo = realmResults.get(position);
-        int textColor = todo.isCompleted() ? R.color.myDisabledTextColor : R.color.myTextColor;
 
+        int textColor = todo.isCompleted() ? R.color.myDisabledTextColor : R.color.myTextColor;
         viewHolder.textView.setText(todo.getName());
         viewHolder.textView.setTextColor(mContext.getResources().getColor(textColor));
+
+        viewHolder.checkbBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (callback != null) callback.onClickCheckBox(position);
+            }
+        });
+        viewHolder.checkbBox.setChecked(todo.isCompleted());
 
         return convertView;
     }
 
     public static class ViewHolder {
         @InjectView(R.id.todo_list_item_tv) TextView textView;
+        @InjectView(R.id.todo_list_item_checkbox) CheckBox checkbBox;
 
         public ViewHolder(View view) {
             ButterKnife.inject(this, view);
         }
     }
+
+    public void setCallback(Callback callback) { this.callback = callback; }
 }

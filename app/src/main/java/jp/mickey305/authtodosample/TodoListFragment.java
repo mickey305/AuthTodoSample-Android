@@ -23,8 +23,9 @@ import jp.mickey305.authtodosample.model.Todo;
 import jp.mickey305.authtodosample.model.TodoListAdapter;
 import jp.mickey305.authtodosample.model.TodoManager;
 import jp.mickey305.authtodosample.util.CustomDialog;
+import jp.mickey305.authtodosample.util.CustomQuickLookDialog;
 
-public class TodoListFragment extends Fragment implements ResultCode{
+public class TodoListFragment extends Fragment implements TodoListAdapter.Callback, ResultCode{
     private final static String TAG = "TodoListFragment";
     private TodoManager mTodoManager;
     private TodoListAdapter mAdapter;
@@ -35,12 +36,21 @@ public class TodoListFragment extends Fragment implements ResultCode{
     @InjectView(R.id.todo_list_empty_tv) TextView mEmptyTextView;
 
     @OnClick(R.id.todo_list_add_ib)
-    void onClickInsertButton() {
+    public void onClickInsertButton() {
         startActivityForResult(TodoCreateActivity.createIntent(getActivity()), TODO_CREATE);
     }
 
     @OnItemClick(R.id.todo_list_lv)
-    void onItemClick(int position) {
+    public void onItemClick(int position) {
+        Todo todo = mAdapter.getItem(position);
+        CustomQuickLookDialog dialog = new CustomQuickLookDialog();
+        dialog.setTitle(todo.getName());
+        dialog.setBody(todo.getSentence());
+        dialog.show(getFragmentManager(), TAG);
+    }
+
+    @Override
+    public void onClickCheckBox(int position) {
         Todo todo = mAdapter.getItem(position);
         mTodoManager.update(todo, !todo.isCompleted());
         mAdapter.notifyDataSetChanged();
@@ -50,7 +60,8 @@ public class TodoListFragment extends Fragment implements ResultCode{
     @OnItemLongClick(R.id.todo_list_lv)
     boolean onItemLongClick(int position) {
         Todo todo = mAdapter.getItem(position);
-        startActivityForResult(TodoCreateActivity.createIntent(getActivity(), todo.getId()), TODO_CREATE);
+        startActivityForResult(
+                TodoCreateActivity.createIntent(getActivity(), todo.getId()), TODO_CREATE);
         return true;
     }
 
@@ -81,6 +92,7 @@ public class TodoListFragment extends Fragment implements ResultCode{
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mAdapter = new TodoListAdapter(getActivity(), mTodoManager.findAll(), true);
+        mAdapter.setCallback(this);
         mListView.setAdapter(mAdapter);
         mListView.setEmptyView(mEmptyTextView);
     }

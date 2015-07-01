@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dp_72"
     android:paddingRight="@dimen/dp_16"
     android:paddingLeft="@dimen/dp_16">
 
+    <CheckBox
+        android:id="@+id/todo_list_item_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
     <TextView
         android:id="@+id/todo_list_item_tv"
+        android:paddingLeft="@dimen/dp_16"
+        android:paddingRight="@dimen/dp_16"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:textAppearance="@style/MyTextAppearanceBody"
         android:textColor="@color/myTextColor"
         android:maxLines="3"
         tools:text="Todo"/>
 
-</RelativeLayout>
+</LinearLayout>
