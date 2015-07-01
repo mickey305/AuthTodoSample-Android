@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import jp.mickey305.authtodosample.layout.CameraOverlayLayout;
 import jp.mickey305.authtodosample.util.CustomDialog;
 
 public class AuthFragment extends Fragment implements
@@ -68,12 +69,7 @@ public class AuthFragment extends Fragment implements
         myCameraView.setCallback(this);
 
         viewGroup.addView(myCameraView);
-        RelativeLayout overLayer = new RelativeLayout(getActivity());
-        overLayer.setBackground(getResources().getDrawable(R.drawable.layout_face_camera));
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-        params.width = getResources().getInteger(R.integer.camera_width);
-        params.height = getResources().getInteger(R.integer.camera_height);
-        overLayer.setLayoutParams(params);
+        CameraOverlayLayout overLayer = new CameraOverlayLayout(getActivity());
         viewGroup.addView(overLayer);
         viewGroup.setPadding(0, 0, 0, (int) getResources().getDimension(R.dimen.dp_24));
 
