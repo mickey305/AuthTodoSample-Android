@@ -2,25 +2,36 @@ package jp.mickey305.authtodosample.camera;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import jp.mickey305.authtodosample.R;
 
-public class CameraView extends SurfaceView implements
-        SurfaceHolder.Callback, PictureListener.PictureDataCallback {
+public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = "CameraView";
     private Context context;
-    private PictureListener mPictureListener;
     private AutoFocusListener mAutoFocusListener;
     private Callback callback;
     private Camera myCamera;
     private boolean cameraAvailable;
     private static CAMERA_MODE CAMERA_STATUS;
+    private byte[] picture;
 
     public CameraView(Context context, CAMERA_MODE mode) {
         super(context);
@@ -30,8 +41,6 @@ public class CameraView extends SurfaceView implements
         holder.addCallback(this);
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        mPictureListener = new PictureListener(context);
-        mPictureListener.setPictureDataCallback(this);
         mAutoFocusListener = new AutoFocusListener();
 
         setCameraStatus(mode);
@@ -54,11 +63,12 @@ public class CameraView extends SurfaceView implements
         setCameraAvailable(false);
         openMyCamera(CAMERA_STATUS);
         try {
-            getMyCamera().setPreviewDisplay(holder);
+            this.myCamera.setPreviewDisplay(holder);
+            this.myCamera.setPreviewCallback(previewListener);
         } catch (Exception e) {
             //e.printStackTrace();
-            releaseMyCamera();
-            setMyCamera(null);
+            this.myCamera.release();
+            this.myCamera = null;
         }
     }
 
@@ -84,14 +94,14 @@ public class CameraView extends SurfaceView implements
         new Thread() {
             @Override
             public void run() {
-                stopMyCameraPreview();
-                Camera.Parameters parameters = getMyCameraParameters();
+                myCamera.stopPreview();
+                Camera.Parameters parameters = myCamera.getParameters();
 
                 // 画面の向きを設定
                 if (portrait) {
-                    getMyCamera().setDisplayOrientation(90);
+                    myCamera.setDisplayOrientation(90);
                 } else {
-                    getMyCamera().setDisplayOrientation(0);
+                    myCamera.setDisplayOrientation(0);
                 }
 
                 // 対応するプレビューサイズ・保存サイズを取得する
@@ -109,8 +119,9 @@ public class CameraView extends SurfaceView implements
                 parameters.setPictureSize(pictureSize.width, pictureSize.height);
 
                 // パラメータを設定してカメラを再開
-                getMyCamera().setParameters(parameters);
-                startMyCameraPreview();
+                myCamera.setParameters(parameters);
+                myCamera.startPreview();
+                setCameraAvailable(true);
             }
         }.start();
     }
@@ -119,20 +130,11 @@ public class CameraView extends SurfaceView implements
     public void surfaceDestroyed(SurfaceHolder holder) {
         setCameraAvailable(false);
 
-        stopMyCameraPreview();
-        releaseMyCamera();
-        setMyCamera(null);
-    }
+        this.myCamera.stopPreview();
+        this.myCamera.setPreviewCallback(null);
+        this.myCamera.release();
+        this.myCamera = null;
 
-    @Override
-    public void onDataProcessingFinished() {
-        // カメラを再開
-        startMyCameraPreview();
-    }
-
-    @Override
-    public void onDataInserted(byte[] data) {
-        if(callback != null) callback.onPictureDataInserted(data);
     }
 
     private boolean isPortrait() {
@@ -175,35 +177,43 @@ public class CameraView extends SurfaceView implements
     private void openMyCamera(CAMERA_MODE mode) {
         Camera  camera = (mode == CAMERA_MODE.BACK)?
                 Camera.open(): Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-        setMyCamera(camera);
+        this.myCamera = camera;
     }
-    private void stopMyCameraPreview() {
-        getMyCamera().stopPreview();
-    }
-    private void startMyCameraPreview() {
-        getMyCamera().startPreview();
-        setCameraAvailable(true);
-    }
-    private void releaseMyCamera() { getMyCamera().release(); }
-    private Camera getMyCamera() { return this.myCamera; }
-    private void setMyCamera(Camera camera) { this.myCamera = camera; }
-    private Camera.Parameters getMyCameraParameters() { return getMyCamera().getParameters(); }
     private void setContext(Context context) { this.context = context; }
     private Context getMyContext() { return this.context; }
+    private void setPicture(byte[] picture) { this.picture = picture; }
+    private byte[] getPicture() { return picture; }
 
     public void takePicture() {
         if(isCameraAvailable()) {
-            getMyCamera().takePicture(null, null, mPictureListener);
             setCameraAvailable(false);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final int previewWidth = myCamera.getParameters().getPreviewSize().width;
+                    final int previewHeight = myCamera.getParameters().getPreviewSize().height;
+                    Bitmap bmp = getBitmapImageFromYUV(getPicture(), previewWidth, previewHeight);
+                    // 画像データを回転
+                    bmp = getRotatedBmp(bmp);
+                    // 写真データを保存
+                    //saveBmpImage(bmp);
+                    // 画像データをセット
+                    byte[] picture = encodeToByteArray(bmp, Bitmap.CompressFormat.JPEG);
+
+                    if(callback != null) callback.onPictureDataInserted(picture);
+                    setCameraAvailable(true);
+                }
+            }).start();
         }
     }
     public boolean isCameraAvailable() { return cameraAvailable; }
     public void setCallback(Callback callback) { this.callback = callback; }
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Camera.Parameters params = this.getMyCameraParameters();
+            Camera.Parameters params = this.myCamera.getParameters();
             if (!params.getFocusMode().equals(Camera.Parameters.FOCUS_MODE_FIXED)) {
-                getMyCamera().autoFocus(mAutoFocusListener);
+                this.myCamera.autoFocus(mAutoFocusListener);
             }
         }
         return true;
@@ -214,4 +224,61 @@ public class CameraView extends SurfaceView implements
 
     public static boolean isInCamera() { return (CAMERA_STATUS == CAMERA_MODE.IN); }
     public static CAMERA_MODE getCameraStatus() { return CAMERA_STATUS; }
+
+
+
+    //______________________________________________________________________________________________
+    private final Camera.PreviewCallback previewListener = new Camera.PreviewCallback() {
+        @Override
+        public void onPreviewFrame(final byte[] data, final Camera camera) {
+            setPicture(data);
+        }
+    };
+    private byte[] getByteImageFromYUV(byte[] data, int width, int height) {
+        YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, width, height, null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 100, baos);
+        return baos.toByteArray();
+    }
+    private Bitmap getBitmapImageFromYUV(byte[] data, int width, int height) {
+        byte[] jdata = getByteImageFromYUV(data, width, height);
+        BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
+        bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bmp = BitmapFactory.decodeByteArray(jdata, 0, jdata.length, bitmapFatoryOptions);
+        return bmp;
+    }
+    private Bitmap getRotatedBmp(Bitmap bitmap) {
+        // 画像データを回転する
+        Matrix matrix = new Matrix();
+        if(CameraView.isInCamera()) {
+            // インカメラの時
+            matrix.setRotate(-90);
+        } else {
+            // メイン（バック）カメラの時
+            matrix.setRotate(90);
+        }
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+    }
+    private byte[] encodeToByteArray(Bitmap bmp, Bitmap.CompressFormat compressFormat) {
+        final int imageQuality = 100;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(compressFormat, imageQuality, baos);
+        try {
+            baos.flush();
+        } catch (IOException e) { }
+        byte[] bArray = baos.toByteArray();
+        try {
+            baos.close();
+        } catch (IOException e) { }
+        return bArray;
+    }
+    private void saveBmpImage(Bitmap bitmap) {
+        final String ext = ".jpg";
+        final SimpleDateFormat photoName = new SimpleDateFormat("yyy-MM-dd-HHmmss", Locale.JAPAN);
+        final String name = photoName.format(Calendar.getInstance().getTime()) + ext;
+        // 画像データを保存する
+        MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, name, null);
+    }
 }
