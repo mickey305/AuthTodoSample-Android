@@ -337,6 +337,7 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
             public void onResponse(JSONObject response) {
                 if(responseCallback != null) responseCallback.onResponseSucceeded();
                 // REQUEST REGISTER: RESPONSE HERE
+                setFaceId(0);
                 try {
                     setFaceId(toInteger(getRegisteredFaceId(response)));
                 } catch (JSONException e) {
