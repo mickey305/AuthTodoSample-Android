@@ -49,20 +49,20 @@ public class TodoListAdapter extends RealmBaseAdapter<Todo> implements ListAdapt
         viewHolder.textView.setText(todo.getName());
         viewHolder.textView.setTextColor(mContext.getResources().getColor(textColor));
 
-        viewHolder.checkbBox.setOnClickListener(new View.OnClickListener() {
+        viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (callback != null) callback.onClickCheckBox(position);
             }
         });
-        viewHolder.checkbBox.setChecked(todo.isCompleted());
+        viewHolder.checkBox.setChecked(todo.isCompleted());
 
         return convertView;
     }
 
     public static class ViewHolder {
         @InjectView(R.id.todo_list_item_tv) TextView textView;
-        @InjectView(R.id.todo_list_item_checkbox) CheckBox checkbBox;
+        @InjectView(R.id.todo_list_item_checkbox) CheckBox checkBox;
 
         public ViewHolder(View view) {
             ButterKnife.inject(this, view);
