@@ -12,28 +12,29 @@ public class SharedPreferencesObject {
     public SharedPreferencesObject(String fileName, Context context){
         sp = context.getSharedPreferences(fileName, Context.MODE_PRIVATE);
     }
-    public void write(String key, int num){
+    public synchronized void write(String key, int num){
         SharedPreferences.Editor editor = sp.edit();
         editor.putInt(key, num);
-        editor.commit();
+        editor.apply();
     }
-    public void write(String key, boolean flg){
+    public synchronized void write(String key, boolean flg){
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean(key , flg);
-        editor.commit();
+        editor.apply();
     }
-    public void write(String key, String value){
+    public synchronized void write(String key, String value){
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
     }
     public int readInt(String key){
         if(sp != null) return sp.getInt(key, 0);
         else return 0;
     }
     public boolean readBool(String key){
-        if(sp != null) return sp.getBoolean(key, false);
-        else return false;
+        /*if(sp != null) return sp.getBoolean(key, false);
+        else return false;*/
+        return sp != null && sp.getBoolean(key, false);
     }
     public String readStr(String key){
         if(sp != null) return sp.getString(key, "");
