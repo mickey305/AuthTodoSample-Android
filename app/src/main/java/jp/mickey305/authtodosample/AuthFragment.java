@@ -7,10 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +32,7 @@ public class AuthFragment extends Fragment implements
         AuthDocomoAPIObject.ResponseCallback,
         AuthDocomoAPIObject.OnConnectionStatusListener
 {
-    private static final String TAG = "AuthFragment";
+    private static final String TAG = AuthFragment.class.getSimpleName();
     private AccessCallback accessCallback;
     private CameraView myCameraView;
     private byte[] imageByteArray;
@@ -117,24 +115,22 @@ public class AuthFragment extends Fragment implements
     }
 
     @Override
-    public void onAuthFacialRecognitionSucceeded() {
-        //showToast("Succeeded");
+    public void onAuthFacialRecognitionSucceeded(int score) {
+        showToast("Facial Recognition Succeeded");
         if(accessCallback != null) accessCallback.onLoginSucceeded();
     }
     @Override
-    public void onAuthFacialRecognitionRejected() {
-        //showToast("Rejected");
+    public void onAuthFacialRecognitionRejected(int score) {
+        showToast("Facial Recognition Rejected");
     }
     @Override
-    public void onAuthExceptionOccurred(JSONException e) {
-        //showToast(e.toString());
-    }
+    public void onAuthExceptionOccurred(JSONException e) { }
 
     @Override
     public void onResponseSucceeded() { }
     @Override
     public void onRequestError(VolleyError e) {
-        //showToast(e.toString());
+        showToast(e.toString());
     }
 
     @Override

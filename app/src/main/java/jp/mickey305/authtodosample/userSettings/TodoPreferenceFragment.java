@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import jp.mickey305.authtodosample.util.CustomDialog;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 public class TodoPreferenceFragment extends PreferenceFragment implements
         Preference.OnPreferenceClickListener,
         AuthDocomoAPIObject.RegisterCallback,
+        AuthDocomoAPIObject.DeleteCallback,
         AuthDocomoAPIObject.ResponseCallback,
         AuthDocomoAPIObject.OnConnectionStatusListener,
         TakePictureDialog.Callback
@@ -69,8 +72,9 @@ public class TodoPreferenceFragment extends PreferenceFragment implements
                     HashMap<String, String> params = new HashMap<>();
                     params.put("faceId", "ALL");
                     docomoAPI.setRequestMode(AuthDocomoAPIObject.REQUEST_MODE.DELETE);
-                    docomoAPI.setResponseCallback(TodoPreferenceFragment.this);
+                    docomoAPI.setDeleteCallback(TodoPreferenceFragment.this);
                     docomoAPI.setOnConnectionStatusListener(TodoPreferenceFragment.this);
+                    docomoAPI.setResponseCallback(TodoPreferenceFragment.this);
                     docomoAPI.setParams(params);
                     docomoAPI.connect();
                 }
@@ -87,21 +91,22 @@ public class TodoPreferenceFragment extends PreferenceFragment implements
      * 撮影ボタンを押した時のダイアログ内で呼ばれる
      */
     @Override
-    public void onPictureTaken() {
-        pictureByteArray = dialogPicture.getPictureArray();
+    public void onPictureTaken(byte[] data) {
+        setPictureByteArray(data);
 
         CustomDialog dialog = new CustomDialog();
         dialog.setTitle("OK, Register Facial Info");
         dialog.setOnClickListener(new CustomDialog.OnClickListener() {
             @Override
             public void onClickPositiveButton() {
-                if(pictureByteArray != null) {
+                if(getPictureByteArray() != null) {
                     HashMap<String, String> params = new HashMap<>();
-                    params.put("inputBase64", docomoAPI.encodeBase64(pictureByteArray));
+                    params.put("inputBase64", docomoAPI.encodeBase64(getPictureByteArray()));
                     docomoAPI.setRequestMode(AuthDocomoAPIObject.REQUEST_MODE.REGISTER);
                     docomoAPI.setParams(params);
                     docomoAPI.setRegisterCallback(TodoPreferenceFragment.this);
                     docomoAPI.setOnConnectionStatusListener(TodoPreferenceFragment.this);
+                    docomoAPI.setResponseCallback(TodoPreferenceFragment.this);
                     docomoAPI.connect();
                 }
             }
@@ -121,22 +126,29 @@ public class TodoPreferenceFragment extends PreferenceFragment implements
         progressDialog.setCancelable(false);
         progressDialog.show();
     }
-
     @Override
     public void onAPIConnectionStop() {
         progressDialog.dismiss();
+    }
+
+    @Override
+    public void onResponseSucceeded() { }
+    @Override
+    public void onRequestError(VolleyError e) {
+        showToast(e.toString());
     }
 
     /*
      * Checkボタンを押した時のダイアログ内で呼ばれる
      */
     @Override
-    public void onRegisterSucceeded() {
+    public void onRegisterSucceeded(int registeredFaceId) {
+        showToast("Registered faceId is "+registeredFaceId);
         sp.write(
                 getResources().getString(R.string.setting_key_face_id_num),
-                docomoAPI.getFaceId()
+                registeredFaceId
         );
-        setFaceId(docomoAPI.getFaceId());
+        setFaceId(registeredFaceId);
         if(callback != null) callback.onAPIRegisterSucceeded();
     }
     @Override
@@ -146,15 +158,30 @@ public class TodoPreferenceFragment extends PreferenceFragment implements
      * 削除ボタンを押した時のダイアログ内で呼ばれる
      */
     @Override
-    public void onResponseSucceeded() {
+    public void onDeleteSucceeded() {
+        showToast("Delete Succeeded");
         sp.write(getResources().getString(R.string.setting_key_face_id_num), 0);
         setFaceId(0);
-        if(callback != null) callback.onAPIDeleteSucceeded();
+        if(callback != null) callback.onAPIDeleteSucceeded();}
+    @Override
+    public void onDeleteFailed() {
+        showToast("Delete Failed");
     }
     @Override
-    public void onRequestError(VolleyError e) { }
+    public void onDeleteExceptionOccurred(JSONException e) { }
 
+    private void showToast(String msg) {
+        Toast.makeText(getActivity(), TAG+": "+msg, Toast.LENGTH_LONG).show();
+    }
+    private void showLog(String msg) {
+        Log.d(TAG, msg);
+    }
     private void setFaceId(int faceId) { this.faceId = faceId; }
+    private void setPictureByteArray(byte[] pictureByteArray) {
+        this.pictureByteArray = pictureByteArray;
+    }
+    private byte[] getPictureByteArray() { return pictureByteArray; }
+
     public int getFaceId() { return faceId; }
     public void setCallback(Callback callback) { this.callback = callback; }
 }

@@ -26,7 +26,7 @@ import java.util.HashMap;
  * その他のクエリはconnectの引数で設定します
  */
 public class AuthDocomoAPIObject implements DocomoAPIURLValues{
-    public static final String TAG = "AuthDocomoAPIObject";
+    public static final String TAG = AuthDocomoAPIObject.class.getSimpleName();
     private static final String uri = URI_FACIAL_RECOGNITION;
     private Context context;
     private REQUEST_MODE requestMode;
@@ -36,6 +36,10 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
     private RequestQueue requestQueue;
     private int faceId;
 
+    /**
+     *
+     * @param context
+     */
     public AuthDocomoAPIObject(Context context) {
         setContext(context);
         setApiKey(getContext());
@@ -43,16 +47,32 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
         requestQueue = Volley.newRequestQueue(getContext());
         setParams(null);
     }
+
+    /**
+     *
+     * @param context
+     * @param requestMode
+     */
     public AuthDocomoAPIObject(Context context, REQUEST_MODE requestMode) {
         this(context);
         setRequestMode(requestMode);
     }
+
+    /**
+     *
+     * @param context
+     * @param requestMode
+     * @param params
+     */
     public AuthDocomoAPIObject(
             Context context, REQUEST_MODE requestMode, HashMap<String, String> params) {
         this(context, requestMode);
         setParams(params);
     }
 
+    /**
+     * リクエストモード（ドコモ顔認証APIリファレンス参照）
+     */
     public enum REQUEST_MODE {
         REGISTER    (0),
         VERIFY      (1),
@@ -64,20 +84,70 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
         final int code;
     }
 
+    /**
+     * クエリを設定する
+     * @param query はAPIに送信するURLクエリ
+     */
     private void setQuery(String query) { this.query = query; }
+
+    /**
+     * APIキーを設定する
+     * @param context
+     */
     private void setApiKey(Context context) {
         apiKey = context.getResources().getString(R.string.api_key);
     }
+
+    /**
+     * faceIdを取得する
+     * @return faceId
+     */
+    private int getFaceId() { return faceId; }
+
     private void setContext(Context context) { this.context = context; }
-    private HashMap<String, String> getParams() { return params; }
+
     private Context getContext() { return context; }
+
+    /**
+     * パラメータを設定する
+     * @return
+     */
+    private HashMap<String, String> getParams() { return params; }
+
+    /**
+     * リクエストモードを取得する
+     * @return is REQUEST_MODE
+     */
     private REQUEST_MODE getRequestMode() { return requestMode; }
+
+    /**
+     * APIキーを取得する
+     * @return
+     */
     private String getApiKey() { return apiKey; }
+
+    /**
+     * クエリを取得する
+     * @return
+     */
     private String getQuery() { return query; }
+
+    /**
+     * リクエスト用（クエリ付き）URLを取得する
+     * @return
+     */
     private String getRequestUrl() { return uri + getQuery(); }
+
+    /**
+     * スコアを判定する
+     * @param score
+     * @param context
+     * @return true or false
+     */
     private boolean judgeScore(final int score, Context context) {
         return (score >= context.getResources().getInteger(R.integer.threshold));
     }
+
     private void showToast(String msg, Context context) {
         Toast.makeText(context, "#"+TAG+" "+msg, Toast.LENGTH_LONG).show();
     }
@@ -137,20 +207,27 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
      * TagEditCallback: 接続モードがTAG_EDITのとき
      *
      * DeleteCallback: 接続モードがDELETEのとき
-     *
+     * - onDeleteSucceeded: 削除が成功した場合に呼ばれるメソッド
+     * - onDeleteFailed: 削除が失敗した場合に呼ばれるメソッド
+     * - onDeleteExceptionOccurred: Response情報を処理中に例外が発生した場合に呼ばれるメソッド（削除が処理エ
+     *   ラーにより失敗した場合に呼ばれるメソッド）
      */
     public interface RegisterCallback {
-        void onRegisterSucceeded();
+        void onRegisterSucceeded(int registeredFaceId);
         void onRegisterExceptionOccurred(JSONException e);
     }
     public interface AuthCallback {
-        void onAuthFacialRecognitionSucceeded();
-        void onAuthFacialRecognitionRejected();
+        void onAuthFacialRecognitionSucceeded(int score);
+        void onAuthFacialRecognitionRejected(int score);
         void onAuthExceptionOccurred(JSONException e);
     }
     public interface ListCallback {}
     public interface TagEditCallback {}
-    public interface DeleteCallback {}
+    public interface DeleteCallback {
+        void onDeleteSucceeded();
+        void onDeleteFailed();
+        void onDeleteExceptionOccurred(JSONException e);
+    }
 
     /**
      * インターフェースを設定するcallback関数
@@ -173,10 +250,10 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
     }
     public void setTagEditCallback(TagEditCallback tagEditCallback) {
         this.tagEditCallback = tagEditCallback;
-    }
+    }*/
     public void setDeleteCallback(DeleteCallback deleteCallback) {
         this.deleteCallback = deleteCallback;
-    }*/
+    }
 
     /**
      * Base64でエンコードした文字列を返す
@@ -194,12 +271,6 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
     public void setFaceId(int faceId) { this.faceId = faceId; }
 
     /**
-     * faceIdを取得する
-     * @return
-     */
-    public int getFaceId() { return faceId; }
-
-    /**
      * リクエスト用のパラメータを設定する
      * @param params
      */
@@ -213,6 +284,8 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
 
     /**
      * APIに接続する
+     * - 内部で使用されているPostJsonObjectRequestくらすへのリンクはこちらから
+     *   {@link jp.mickey305.authtodosample.http.request.PostJsonObjectRequest}
      */
     public void connect() {
         if(onConnectionStatusListener != null) onConnectionStatusListener.onAPIConnectionStart();
@@ -224,7 +297,7 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
                 getRequestUrl(),
                 getParams(),
                 getResponseListener(getRequestMode()),
-                createErrorListenerI()
+                getResponseErrorListener()
         );
         requestQueue.add(request);
     }
@@ -240,6 +313,8 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
 
     /**
      * APIに接続する
+     * - 内部で使用されているPostJsonObjectRequestくらすへのリンクはこちらから
+     *   {@link jp.mickey305.authtodosample.http.request.PostJsonObjectRequest}
      * @param queryArray はリクエスト用のクエリを格納しているHashMapオブジェクト（keyとvalueの対）
      */
     public void connect(HashMap<String, String> queryArray) {
@@ -253,7 +328,7 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
                 getRequestUrl(),
                 getParams(),
                 getResponseListener(getRequestMode()),
-                createErrorListenerI()
+                getResponseErrorListener()
         );
         requestQueue.add(request);
     }
@@ -273,6 +348,11 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
      * private method
      *
      */
+
+    /**
+     * クエリを追加する
+     * @param queryArray はリクエスト用のクエリを格納しているHashMapオブジェクト（keyとvalueの対）
+     */
     private void addQuery(HashMap<String, String> queryArray) {
         String query = "";
         int i = 0;
@@ -286,27 +366,75 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
         if(!isEmptyQuery()) setQuery(getQuery() + query);
         else setQuery(query);
     }
+
+    /**
+     * クエリが空か
+     * @return
+     */
     private boolean isEmptyQuery() {
         return (getQuery() == null || getQuery().equals(""));
     }
+
+    /**
+     * String to Integer
+     * @param str
+     * @return
+     */
     private int toInteger(String str) {
         return Integer.parseInt(str);
     }
+
+    /**
+     * String to Double
+     * @param str
+     * @return
+     */
     private double toDouble(String str) {
         return Double.parseDouble(str);
     }
+
+    /**
+     * String to Float
+     * @param str
+     * @return
+     */
     private float toFloat(String str) {
         return Float.parseFloat(str);
     }
+
+    /**
+     * String to Byte
+     * @param str
+     * @return
+     */
     private byte toByte(String str) {
         return Byte.parseByte(str);
     }
+
+    /**
+     * String to Long
+     * @param str
+     * @return
+     */
     private long toLong(String str) {
         return Long.parseLong(str);
     }
+
+    /**
+     * String to Short
+     * @param str
+     * @return
+     */
     private short toShort(String str) {
         return Short.parseShort(str);
     }
+
+    /**
+     * クエリに設定するリクエストモードの文字列を取得する
+     * @param mode はリクエストのタイプ（enum REQUEST_MODE）
+     * @param context
+     * @return リクエストモードの文字列
+     */
     private String getModeValue(REQUEST_MODE mode, Context context) {
         String value;
         switch (mode) {
@@ -319,151 +447,152 @@ public class AuthDocomoAPIObject implements DocomoAPIURLValues{
         }
         return value;
     }
-    private Response.Listener<JSONObject> getResponseListener(REQUEST_MODE mode) {
-        Response.Listener<JSONObject> listener;
-        switch (mode) {
-            case REGISTER: listener = createResListenerRegisterI(); break;
-            case VERIFY:   listener = createResListenerVerifyI(); break;
-            case LIST:     listener = createResListenerListI(); break;
-            case TAG_EDIT: listener = createResListenerTagEditI(); break;
-            case DELETE:   listener = createResListenerDeleteI(); break;
-            default:       listener = null; break;
-        }
-        return listener;
-    }
-    private Response.Listener<JSONObject> createResListenerRegisterI() {
-        return new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if(responseCallback != null) responseCallback.onResponseSucceeded();
-                // REQUEST REGISTER: RESPONSE HERE
-                setFaceId(0);
-                try {
-                    setFaceId(toInteger(getRegisteredFaceId(response)));
-                } catch (JSONException e) {
-                    //e.printStackTrace();
-                    if(registerCallback != null) registerCallback.onRegisterExceptionOccurred(e);
-                }
-                if(getFaceId() != 0) {
-                    if(registerCallback != null) registerCallback.onRegisterSucceeded();
-                }
-                if(onConnectionStatusListener != null) {
-                    onConnectionStatusListener.onAPIConnectionStop();
-                }
-            }
-        };
-    }
-    private Response.Listener<JSONObject> createResListenerVerifyI() {
-        return new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if(responseCallback != null) responseCallback.onResponseSucceeded();
-                // REQUEST VERIFY: RESPONSE HERE
-                int score = 0;
-                int faceIdVerify;
-                int i = 0;
-                try {
-                    final int max = getContext().getResources().getInteger(R.integer.face_id_max);
-                    while (i < max) {
-                        if(getFaceId() == 0) { break; }
-                        faceIdVerify = toInteger(getVerifiedFaceId(response, i));
-                        score = toInteger(getVerifiedScore(response, i));
-                        if(getFaceId() == faceIdVerify) { break; }
-                        ++i;
-                    }
-                    if(judgeScore(score, getContext())) {
-                        // Verify Succeeded
-                        if(authCallback != null) authCallback.onAuthFacialRecognitionSucceeded();
-                    } else {
-                        // Verify Rejected
-                        if(authCallback != null) authCallback.onAuthFacialRecognitionRejected();
-                    }
-                } catch (JSONException e) {
-                    //e.printStackTrace();
-                    if(authCallback != null) authCallback.onAuthExceptionOccurred(e);
-                }
-                if(onConnectionStatusListener != null) {
-                    onConnectionStatusListener.onAPIConnectionStop();
-                }
-            }
-        };
-    }
-    private Response.Listener<JSONObject> createResListenerListI() {
-        return new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if(responseCallback != null) responseCallback.onResponseSucceeded();
-                // REQUEST LIST: RESPONSE HERE
 
-                if(onConnectionStatusListener != null) {
-                    onConnectionStatusListener.onAPIConnectionStop();
-                }
-            }
-        };
-    }
-    private Response.Listener<JSONObject> createResListenerTagEditI() {
+    /**
+     * 接続モードのリスナーを作成する
+     * @param mode はリクエストのタイプ（enum REQUEST_MODE）
+     * @return レスポンスリスナー（インスタンス化されたリスナー）
+     */
+    private Response.Listener<JSONObject> getResponseListener(final REQUEST_MODE mode) {
         return new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 if(responseCallback != null) responseCallback.onResponseSucceeded();
-                // REQUEST TAG_EDIT: RESPONSE HERE
-
+                switch (mode) {
+                    case REGISTER: runRegisterJob(response); break;
+                    case VERIFY:   runVerifyJob(response); break;
+                    case LIST:     runListJob(response); break;
+                    case TAG_EDIT: runTagEditJob(response); break;
+                    case DELETE:   runDeleteJob(response); break;
+                    default:       break;
+                }
                 if(onConnectionStatusListener != null) {
                     onConnectionStatusListener.onAPIConnectionStop();
                 }
             }
         };
     }
-    private Response.Listener<JSONObject> createResListenerDeleteI() {
-        return new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                if(responseCallback != null) responseCallback.onResponseSucceeded();
-                // REQUEST DELETE: RESPONSE HERE
 
-                if(onConnectionStatusListener != null) {
-                    onConnectionStatusListener.onAPIConnectionStop();
-                }
-            }
-        };
-    }
-    private Response.ErrorListener createErrorListenerI() {
+    /**
+     * エラー時のリスナーを作成する
+     * @return レスポンスリスナー（インスタンス化されたリスナー）
+     */
+    private Response.ErrorListener getResponseErrorListener() {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if(responseCallback != null) responseCallback.onRequestError(error);
-                // REQUEST ALL: RESPONSE ERROR HERE
-
+                runErrorJob(error);
                 if(onConnectionStatusListener != null) {
                     onConnectionStatusListener.onAPIConnectionStop();
                 }
             }
         };
     }
-    private String getVerifiedScore(JSONObject res, int index) throws JSONException {
-        return getCandidateJson(getFaceRecognitionJson(res), index).getString("score");
+
+    /**
+     * 登録モードのレスポンス処理
+     * @param response は返ってきたJSONObject{@link org.json.JSONObject}
+     */
+    private void runRegisterJob(JSONObject response) {
+        // REQUEST REGISTER: RESPONSE HERE
+        AuthDocomoJSON picker = new AuthDocomoJSON(response);
+        setFaceId(0);
+        try {
+            setFaceId(toInteger(picker.getValue("faceId", 0)));
+            if(getFaceId() != 0) {
+                if(registerCallback != null) registerCallback.onRegisterSucceeded(getFaceId());
+            }
+        } catch (JSONException e) {
+            //e.printStackTrace();
+            if(registerCallback != null) registerCallback.onRegisterExceptionOccurred(e);
+        }
     }
-    private String getVerifiedFaceId(JSONObject res, int index) throws JSONException {
-        return getCandidateJson(getFaceRecognitionJson(res), index).getString("faceId");
+
+    /**
+     * 認証モードのレスポンス処理
+     * @param response は返ってきたJSONObject{@link org.json.JSONObject}
+     */
+    private void runVerifyJob(JSONObject response) {
+        // REQUEST VERIFY: RESPONSE HERE
+        AuthDocomoJSON picker = new AuthDocomoJSON(response);
+        int score = 0;
+        int faceIdVerify;
+        int i = 0;
+        try {
+            final int max = getContext().getResources().getInteger(R.integer.face_id_max);
+            while (i < max) {
+                if(getFaceId() == 0) { break; }
+                faceIdVerify = toInteger(picker.getValue("faceId", i));
+                score = toInteger(picker.getValue("score", i));
+                if(getFaceId() == faceIdVerify) { break; }
+                ++i;
+            }
+            if(judgeScore(score, getContext())) {
+                // Verify Succeeded
+                if(authCallback != null) authCallback.onAuthFacialRecognitionSucceeded(score);
+            } else {
+                // Verify Rejected
+                if(authCallback != null) authCallback.onAuthFacialRecognitionRejected(score);
+            }
+        } catch (JSONException e) {
+            //e.printStackTrace();
+            if(authCallback != null) authCallback.onAuthExceptionOccurred(e);
+        }
     }
-    private JSONObject getCandidateJson(JSONObject res, int indexCandidate)
-            throws JSONException {
-        return res.getJSONArray("verificationFaceInfo")
-                .getJSONObject(0)
-                .getJSONArray("candidate")
-                .getJSONObject(indexCandidate);
+
+    /**
+     * リストモードのレスポンス処理
+     * @param response は返ってきたJSONObject{@link org.json.JSONObject}
+     */
+    private void runListJob(JSONObject response) {
+        // REQUEST LIST: RESPONSE HERE
+
     }
-    private String getRegisteredFaceId(JSONObject res) throws JSONException {
-        return getRegistrationFaceInfoJson(getFaceRecognitionJson(res)).getString("faceId");
+
+    /**
+     * タグエディットモードのレスポンス処理
+     * @param response は返ってきたJSONObject{@link org.json.JSONObject}
+     */
+    private void runTagEditJob(JSONObject response) {
+        // REQUEST TAG_EDIT: RESPONSE HERE
+
     }
-    private JSONObject getRegistrationFaceInfoJson(JSONObject res) throws JSONException {
-        return res.getJSONArray("detectionFaceInfo")
-                .getJSONObject(0)
-                .getJSONObject("registrationFaceInfo");
+
+    /**
+     * 削除モードのレスポンス処理
+     * @param response は返ってきたJSONObject{@link org.json.JSONObject}
+     */
+    private void runDeleteJob(JSONObject response) {
+        // REQUEST DELETE: RESPONSE HERE
+        String value = "";
+        AuthDocomoJSON picker = new AuthDocomoJSON(response);
+        try {
+            if(picker.isExistKey("status")) {
+                value = picker.getValue("status", 0);
+                if(value.equals("success")) {
+                    // Delete Succeeded
+                    if(deleteCallback != null) deleteCallback.onDeleteSucceeded();
+                }
+            } else {
+                value = picker.getValue("errorInfo", 0);
+                if(value.equals("NoFace")) {
+                    // Delete Failed
+                    if(deleteCallback != null) deleteCallback.onDeleteFailed();
+                }
+            }
+        } catch (JSONException e) {
+            //e.printStackTrace();
+            if(deleteCallback != null) deleteCallback.onDeleteExceptionOccurred(e);
+        }
     }
-    private JSONObject getFaceRecognitionJson(JSONObject res)
-            throws JSONException {
-        return res.getJSONObject("results")
-                .getJSONObject("faceRecognition");
+
+    /**
+     * 通信エラー時のレスポンス処理
+     * @param e は通信時のエラー（VolleyError{@link com.android.volley.VolleyError}）
+     */
+    private void runErrorJob(VolleyError e) {
+        // REQUEST ALL: RESPONSE ERROR HERE
+
     }
 }

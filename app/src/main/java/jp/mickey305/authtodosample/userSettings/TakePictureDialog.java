@@ -24,12 +24,11 @@ public class TakePictureDialog extends DialogFragment implements CameraView.Call
     private TextView textViewTitle;
     private ViewGroup viewGroup;
     private CameraView myCameraView;
-    private byte[] pictureArray;
 
     public TakePictureDialog() { }
 
     public interface Callback {
-        void onPictureTaken();
+        void onPictureTaken(byte[] data);
     }
 
     @Override
@@ -77,8 +76,7 @@ public class TakePictureDialog extends DialogFragment implements CameraView.Call
 
     @Override
     public void onPictureDataInserted(byte[] pictureData) {
-        pictureArray = pictureData;
-        if(listener != null) listener.onPictureTaken();
+        if(listener != null) listener.onPictureTaken(pictureData);
         dismiss();
     }
 
@@ -89,6 +87,4 @@ public class TakePictureDialog extends DialogFragment implements CameraView.Call
     public void setTitle(String msg) {
         title = msg;
     }
-
-    public byte[] getPictureArray() { return pictureArray; }
 }
