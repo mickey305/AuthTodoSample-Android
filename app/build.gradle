@@ -20,6 +20,9 @@ android {
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 dependencies {
@@ -28,4 +31,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'io.realm:realm-android:0.80.0'
     compile 'com.mcxiaoke.volley:library:1.0+'
+    compile 'com.mickey305:android-common-library:0.0.1'
 }
